@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  backend:
+    image: my-backend:latest
+    container_name: backend-prod
+    restart: always
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env.prod
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:7
+    container_name: mongo-prod
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
