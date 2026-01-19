@@ -19,28 +19,23 @@ router.get('', auth, role('admin'), async (req, res) => {
     res.json(users);
 });
 
+
 router.get('/user', auth, async (req, res) => {
-    const data = updateUserSchema.parse(req.body);
-    try {
-        const header = req.headers.authorization;
+  const user = await User.findById(req.user!.id).select(
+    '_id name email role isActive'
+  )
 
-        if (!header) {
-            return res.status(401).json({ message: 'No token' });
-        } else {
-            const token = header.split(' ')[1];
-            const decoded = jwt.verify(
-                token,
-                process.env.JWT_SECRET!
-            ) as JwtPayload;
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' })
+  }
 
-            req.user = decoded; // ✅ теперь TS знает об этом
-            const user = await User.findById(req.user.id, data);
-            res.json(user);
-        }
-
-    } catch {
-        res.status(401).json({ message: 'Invalid token' });
-    }
+  res.json({
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    isActive: user.isActive,
+  })
 });
 
 router.put('/:id', auth, role('admin'), async (req, res) => {
