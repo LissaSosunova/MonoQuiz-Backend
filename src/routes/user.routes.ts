@@ -3,8 +3,9 @@ import bcrypt from 'bcrypt';
 import User from '../models/User';
 import { auth } from '../middleware/auth.middleware';
 import { role } from '../middleware/role.middleware';
-import { updateUserSchema, changePasswordSchema } from '../validators/user.schema';
-import jwt from 'jsonwebtoken';
+import { adminOnly } from '../middleware/admin.middleware';
+import { updateUserSchema, changePasswordSchema, registerSchema } from '../validators/user.schema';
+import { updateRoleSchema } from '../validators/role.schema';
 
 export interface JwtPayload {
     id: string;
@@ -21,21 +22,21 @@ router.get('', auth, role('admin'), async (req, res) => {
 
 
 router.get('/user', auth, async (req, res) => {
-  const user = await User.findById(req.user!.id).select(
-    '_id name email role isActive'
-  )
+    const user = await User.findById(req.user!.id).select(
+        '_id name email role isActive'
+    )
 
-  if (!user) {
-    return res.status(404).json({ message: 'User not found' })
-  }
+    if (!user) {
+        return res.status(404).json({ message: 'User not found' })
+    }
 
-  res.json({
-    id: user._id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    isActive: user.isActive,
-  })
+    res.json({
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isActive: user.isActive,
+    })
 });
 
 router.put('/:id', auth, role('admin'), async (req, res) => {
@@ -55,5 +56,70 @@ router.put('/:id/password', auth, async (req, res) => {
     await User.findByIdAndUpdate(req.params.id, { password: hash });
     res.json({ message: 'Password updated' });
 });
+
+router.post('/register', async (req, res) => {
+    try {
+        const data = registerSchema.parse(req.body)
+
+        const exists = await User.findOne({ email: data.email })
+        if (exists) {
+            return res.status(400).json({ message: 'Email already exists' })
+        }
+
+        const hashedPassword = await bcrypt.hash(data.password, 10)
+
+        const user = await User.create({
+            name: data.name,
+            email: data.email,
+            password: hashedPassword,
+            role: 'user',
+            isActive: true,
+        })
+
+        res.status(201).json({
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+        })
+    } catch (err) {
+        res.status(400).json({ message: 'Invalid data' })
+    }
+})
+
+router.patch(
+    '/users/:id/role',
+    auth,
+    adminOnly,
+    async (req, res) => {
+        try {
+            const { role } = updateRoleSchema.parse(req.body)
+
+            if (req.user!.id === req.params.id) {
+                return res.status(400).json({
+                    message: 'You cannot change your own role',
+                })
+            }
+
+            const user = await User.findByIdAndUpdate(
+                req.params.id,
+                { role },
+                { new: true }
+            )
+
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' })
+            }
+
+            res.json({
+                id: user._id,
+                email: user.email,
+                role: user.role,
+            })
+        } catch {
+            res.status(400).json({ message: 'Invalid data' })
+        }
+    }
+)
 
 export default router;
