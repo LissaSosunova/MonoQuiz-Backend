@@ -124,42 +124,45 @@ router.patch(
     }
 )
 router.patch(
-    '/changevisibility/:id/isActive',
-    auth,
-    adminOnly,
-    async (req, res) => {
-        try {
-            const { id, isActive } = req.params
-            const isActiveBool = isActive === 'true'
+  '/changevisibility',
+  auth,
+  adminOnly,
+  async (req, res) => {
+    try {
+      const { id, isActive } = req.body;
 
-            if (req.user!.id === id) {
-                return res.status(400).json({
-                    message: 'You cannot change your own active status',
-                })
-            }
+      if (!id || typeof isActive !== 'boolean') {
+        return res.status(400).json({ message: 'Invalid payload' });
+      }
 
-            const user = await User.findByIdAndUpdate(
-                id,
-                { isActive: isActiveBool },
-                { new: true }
-            )
+      if (req.user!.id === id) {
+        return res.status(400).json({
+          message: 'You cannot change your own active status',
+        });
+      }
 
-            if (!user) {
-                return res.status(404).json({ message: 'User not found' })
-            }
+      const user = await User.findByIdAndUpdate(
+        id,
+        { isActive },
+        { new: true }
+      );
 
-            res.json({
-                id: user._id,
-                email: user.email,
-                role: user.role,
-                isActive: user.isActive,
-                name: user.name
-            })
-        } catch (err) {
-            console.error(err)
-            res.status(400).json({ message: 'Invalid data' })
-        }
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      res.json({
+        id: user._id,
+        email: user.email,
+        role: user.role,
+        isActive: user.isActive,
+        name: user.name,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(400).json({ message: 'Invalid data' });
     }
+  }
 )
 
 export default router;
