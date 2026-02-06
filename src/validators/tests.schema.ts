@@ -68,3 +68,42 @@ export const TestTypeUpdateSchema = z.object({
   }).optional()
 })
 
+export const TestCategoryCreateSchema = z.object({
+  slug: z
+    .string()
+    .min(1)
+    .regex(/^[a-z0-9-]+$/, 'Slug must be kebab-case'),
+
+  translations: z.object({
+    en: z.object({
+      title: z.string().min(1),
+      description: z.string().optional().default('')
+    }),
+    uk: z.object({
+      title: z.string().min(1),
+      description: z.string().optional().default('')
+    }),
+    ru: z.object({
+      title: z.string().min(1),
+      description: z.string().optional().default('')
+    })
+  })
+})
+
+export const TestCategoryUpdateSchema = z.object({
+  slug: z.string().min(1).optional(),
+  translations: z.object({
+    en: z.object({
+      title: z.string().min(1),
+      description: z.string().optional().default('')
+    }),
+    uk: z.object({
+      title: z.string().min(1),
+      description: z.string().optional().default('')
+    }),
+    ru: z.object({
+      title: z.string().min(1),
+      description: z.string().optional().default('')
+    })
+  }).optional()
+})
