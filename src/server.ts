@@ -6,6 +6,7 @@ import cors from 'cors';
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
 import typesRoutes from './routes/types.routes';
+import categoriesRoutes from './routes/cateories.routes';
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.use(express.json());
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 app.use('/types', typesRoutes);
+app.use('/category', categoriesRoutes);
 
 mongoose.connect(process.env.MONGO_URI!)
   .then(() => console.log('✅ MongoDB connected'));

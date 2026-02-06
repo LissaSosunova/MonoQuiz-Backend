@@ -47,44 +47,54 @@ router.post(
 )
 
 router.patch(
-  '/edit/:id',
-  auth,
-  adminOnly,
-  async (req, res) => {
-    try {
-      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id
+    '/edit/:id',
+    auth,
+    adminOnly,
+    async (req, res) => {
+        try {
+            const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id
 
-      if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({ message: 'Invalid id' })
-      }
+            if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+                return res.status(400).json({ message: 'Invalid id' })
+            }
 
-      const data = TestTypeUpdateSchema.parse(req.body)
+            const data = TestTypeUpdateSchema.parse(req.body)
+            // проверка уникальности slug
+            if (data.slug) {
+                const exists = await TestTypeModel.findOne({
+                    slug: data.slug,
+                    _id: { $ne: new mongoose.Types.ObjectId(id) }
+                })
 
-      // проверим существование документа для отладки
-      const existing = await TestTypeModel.findById(id)
-      if (!existing) {
-        console.log('Document not found', id)
-        return res.status(404).json({ message: 'Type not found' })
-      }
+                if (exists) {
+                    return res.status(400).json({
+                        message: 'Test type with this slug already exists'
+                    })
+                }
+            }
+            const existing = await TestTypeModel.findById(id)
+            if (!existing) {
+                return res.status(404).json({ message: 'Type not found' })
+            }
 
-      const updated = await TestTypeModel.findByIdAndUpdate(
-        id,
-        { $set: data },
-        { new: true, runValidators: true }
-      )
+            const updated = await TestTypeModel.findByIdAndUpdate(
+                id,
+                { $set: data },
+                { new: true, runValidators: true }
+            )
 
-      res.json(updated)
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        return res.status(400).json({
-          message: 'Validation error',
-          errors: err.issues
-        })
-      }
+            res.json(updated)
+        } catch (err) {
+            if (err instanceof z.ZodError) {
+                return res.status(400).json({
+                    message: 'Validation error',
+                    errors: err.issues
+                })
+            }
 
-      res.status(500).json({ message: 'Server error', err })
+            res.status(500).json({ message: 'Server error', err })
+        }
     }
-  }
 )
 
 
