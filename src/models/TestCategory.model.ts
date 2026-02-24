@@ -1,5 +1,5 @@
 import { Schema, model, Document } from 'mongoose'
-import { TranslationsSchema } from './Translations.schema'
+import { TranslationSchema } from './Translations.schema'
 
 export interface ITestCategory extends Document {
   slug: string
@@ -24,7 +24,7 @@ const TestCategorySchema = new Schema<ITestCategory>(
     },
 
     translations: {
-      type: TranslationsSchema,
+      type: TranslationSchema,
       required: true
     },
 

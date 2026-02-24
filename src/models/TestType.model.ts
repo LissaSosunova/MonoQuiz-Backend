@@ -1,5 +1,5 @@
 import { Schema, model, Document } from 'mongoose'
-import { TranslationsSchema } from './Translations.schema'
+import { TranslationSchema } from './Translations.schema'
 
 export type QuestionType = 'single' | 'multiple' | 'scale'
 
@@ -25,7 +25,7 @@ const TestTypeSchema = new Schema<ITestType>(
     },
 
     translations: {
-      type: TranslationsSchema,
+      type: TranslationSchema,
       required: true
     }
   },

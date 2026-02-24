@@ -1,136 +1,37 @@
-import { Schema, model, Document, Types } from 'mongoose'
-import { TranslationsSchema } from './Translations.schema'
+import { TranslationSchema } from './Translations.schema';
+import { CalculationSchemeSchema } from './CalculationScheme.model';
+import { QuestionSchema } from './Question.schema';
 
-/* ---------- Answer ---------- */
-export interface IAnswer {
-  id: string
-  translations: {
-    en: { title: string }
-    uk: { title: string }
-    ru: { title: string }
-  }
-  score: number
-}
+import { model, Schema } from 'mongoose'
 
-const AnswerSchema = new Schema<IAnswer>(
+const TestSchema = new Schema(
   {
-    id: { type: String, required: true },
+    name: { type: TranslationSchema, required: true },
+    description: { type: TranslationSchema, required: true },
 
-    translations: {
-      type: TranslationsSchema,
-      required: true
-    },
+    type: { type: String, required: true },
+    category: { type: String, required: true },
 
-    score: {
-      type: Number,
-      required: true
-    }
-  },
-  { _id: false }
-)
-
-/* ---------- Question ---------- */
-export interface IQuestion {
-  id: string
-  translations: {
-    en: { title: string; description?: string }
-    uk: { title: string; description?: string }
-    ru: { title: string; description?: string }
-  }
-  answers: IAnswer[]
-  reverse: boolean
-}
-
-const QuestionSchema = new Schema<IQuestion>(
-  {
-    id: { type: String, required: true },
-
-    translations: {
-      type: TranslationsSchema,
-      required: true
-    },
-
-    answers: {
-      type: [AnswerSchema],
-      validate: [(v: IAnswer[]) => v.length > 0, 'Answers required']
-    },
-
-    reverse: {
-      type: Boolean,
-      default: false
-    }
-  },
-  { _id: false }
-)
-
-/* ---------- Test ---------- */
-export interface ITest extends Document {
-  slug: string
-
-  categoryId: Types.ObjectId
-  typeId: Types.ObjectId
-  calculationSchemeId: Types.ObjectId
-
-  translations: {
-    en: { title: string; description: string }
-    uk: { title: string; description: string }
-    ru: { title: string; description: string }
-  }
-
-  questions: IQuestion[]
-
-  version: number
-  isPublished: boolean
-}
-
-const TestSchema = new Schema<ITest>(
-  {
-    slug: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true
-    },
-
-    categoryId: {
-      type: Schema.Types.ObjectId,
-      ref: 'TestCategory',
-      required: true
-    },
-
-    typeId: {
-      type: Schema.Types.ObjectId,
-      ref: 'TestType',
-      required: true
-    },
-
-    calculationSchemeId: {
-      type: Schema.Types.ObjectId,
-      ref: 'CalculationScheme',
-      required: true
-    },
-
-    translations: {
-      type: TranslationsSchema,
+    calculationScheme: {
+      type: CalculationSchemeSchema,
       required: true
     },
 
     questions: {
       type: [QuestionSchema],
-      default: []
+      required: true
     },
 
-    version: {
-      type: Number,
-      default: 1
-    },
+    price: { type: Number, default: 0 },
 
-    isPublished: {
-      type: Boolean,
-      default: false
+    image: { type: String },
+
+    dateCreated: {
+      type: Date,
+      default: Date.now
     }
   },
   { timestamps: true }
 )
 
-export const TestModel = model<ITest>('Test', TestSchema)
+export const TestModel = model('Test', TestSchema)

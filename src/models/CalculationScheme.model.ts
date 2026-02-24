@@ -1,67 +1,25 @@
-import { Schema, model, Document } from 'mongoose'
-import { TranslationsSchema } from './Translations.schema'
+import { Schema } from 'mongoose'
 
 export type CalculationType = 'sum' | 'formula'
 
-export interface IResultRange {
-  min: number
-  max: number
-  translations: {
-    en: { title: string; description: string }
-    uk: { title: string; description: string }
-    ru: { title: string; description: string }
-  }
-}
-
-export interface ICalculationScheme extends Document {
-  slug: string
+interface CalculationScheme {
   type: CalculationType
   formula?: string
-  resultRanges: IResultRange[]
 }
 
-const ResultRangeSchema = new Schema<IResultRange>(
+export const CalculationSchemeSchema = new Schema<CalculationScheme>(
   {
-    min: Number,
-    max: Number,
-    translations: {
-      type: TranslationsSchema,
-      required: true
-    }
-  },
-  { _id: false }
-)
-
-const CalculationSchemeSchema = new Schema<ICalculationScheme>(
-  {
-    slug: {
-      type: String,
-      unique: true,
-      required: true
-    },
-
     type: {
       type: String,
       enum: ['sum', 'formula'],
       required: true
     },
-
     formula: {
       type: String,
-      required: function () {
+      required: function (this: CalculationScheme) {
         return this.type === 'formula'
       }
-    },
-
-    resultRanges: {
-      type: [ResultRangeSchema],
-      default: []
     }
   },
-  { timestamps: true }
-)
-
-export const CalculationSchemeModel = model<ICalculationScheme>(
-  'CalculationScheme',
-  CalculationSchemeSchema
+  { _id: false }
 )

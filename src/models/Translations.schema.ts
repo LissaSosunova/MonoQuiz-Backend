@@ -1,19 +1,10 @@
 import { Schema } from 'mongoose'
 
-export const TranslationsSchema = new Schema(
+export const TranslationSchema = new Schema(
   {
-    en: {
-      title: { type: String, required: true },
-      description: { type: String, default: '' }
-    },
-    uk: {
-      title: { type: String, required: true },
-      description: { type: String, default: '' }
-    },
-    ru: {
-      title: { type: String, required: true },
-      description: { type: String, default: '' }
-    }
+    en: { type: String, required: true },
+    uk: { type: String, required: true },
+    ru: { type: String, required: true }
   },
   { _id: false }
 )
