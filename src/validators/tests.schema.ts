@@ -1,109 +1,42 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
-export const TestImportSchema = z.object({
-  translations: z.object({
-    en: z.object({
-      title: z.string(),
-      description: z.string()
-    }),
-    uk: z.object({
-      title: z.string(),
-      description: z.string()
-    }),
-    ru: z.object({
-      title: z.string(),
-      description: z.string()
-    })
-  }),
-  questions: z.array(
-    z.object({
-      translations: z.any(),
-      answers: z.array(
-        z.object({
-          translations: z.any(),
-          score: z.number()
-        })
-      )
-    })
-  )
+const TranslationSchemaZod = z.object({
+  en: z.string().min(1),
+  uk: z.string().min(1),
+  ru: z.string().min(1)
 })
 
-export const TestTypeCreateSchema = z.object({
-  slug: z
-    .string()
-    .min(1)
-    .regex(/^[a-z0-9-]+$/, 'Slug must be kebab-case'),
-
-  translations: z.object({
-    en: z.object({
-      title: z.string().min(1),
-      description: z.string().optional().default('')
-    }),
-    uk: z.object({
-      title: z.string().min(1),
-      description: z.string().optional().default('')
-    }),
-    ru: z.object({
-      title: z.string().min(1),
-      description: z.string().optional().default('')
-    })
-  })
+const AnswerSchemaZod = z.object({
+  translations: TranslationSchemaZod,
+  score: z.number()
 })
 
-export const TestTypeUpdateSchema = z.object({
-  slug: z.string().min(1).optional(),
-  translations: z.object({
-    en: z.object({
-      title: z.string().min(1),
-      description: z.string().optional().default('')
-    }),
-    uk: z.object({
-      title: z.string().min(1),
-      description: z.string().optional().default('')
-    }),
-    ru: z.object({
-      title: z.string().min(1),
-      description: z.string().optional().default('')
-    })
-  }).optional()
+const QuestionSchemaZod = z.object({
+  translations: TranslationSchemaZod,
+  answers: z.array(AnswerSchemaZod).min(1)
 })
 
-export const TestCategoryCreateSchema = z.object({
-  slug: z
-    .string()
-    .min(1)
-    .regex(/^[a-z0-9-]+$/, 'Slug must be kebab-case'),
+export const TestCreateSchema = z.object({
+  name: TranslationSchemaZod,
+  description: TranslationSchemaZod,
 
-  translations: z.object({
-    en: z.object({
-      title: z.string().min(1),
-      description: z.string().optional().default('')
-    }),
-    uk: z.object({
-      title: z.string().min(1),
-      description: z.string().optional().default('')
-    }),
-    ru: z.object({
-      title: z.string().min(1),
-      description: z.string().optional().default('')
-    })
-  })
-})
+  type: z.string(),
+  category: z.string(),
 
-export const TestCategoryUpdateSchema = z.object({
-  slug: z.string().min(1).optional(),
-  translations: z.object({
-    en: z.object({
-      title: z.string().min(1),
-      description: z.string().optional().default('')
-    }),
-    uk: z.object({
-      title: z.string().min(1),
-      description: z.string().optional().default('')
-    }),
-    ru: z.object({
-      title: z.string().min(1),
-      description: z.string().optional().default('')
-    })
-  }).optional()
+  calculationScheme: z.object({
+    type: z.enum(['sum', 'formula']),
+    formula: z.string().optional()
+  }).refine(
+    (data) => data.type === 'sum' || !!data.formula,
+    {
+      message: 'Formula required',
+      path: ['formula']
+    }
+  ),
+
+  questions: z.array(QuestionSchemaZod).min(1),
+
+  price: z.number().min(0),
+
+  image: z.string().optional()
 })
