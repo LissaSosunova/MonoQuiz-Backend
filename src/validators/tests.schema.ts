@@ -1,9 +1,9 @@
 import { z } from 'zod'
 
 const TranslationSchemaZod = z.object({
-  en: z.string().min(1),
-  uk: z.string().min(1),
-  ru: z.string().min(1)
+  en: z.string(),
+  uk: z.string(),
+  ru: z.string()
 })
 
 const AnswerSchemaZod = z.object({
@@ -39,4 +39,34 @@ export const TestCreateSchema = z.object({
   price: z.number().min(0),
 
   image: z.string().optional()
+})
+
+export const TestTypeCreateSchema = z.object({
+  slug: z
+    .string()
+    .min(1)
+    .regex(/^[a-z0-9-]+$/, 'Slug must be kebab-case'),
+  title: TranslationSchemaZod,
+  description: TranslationSchemaZod
+})
+
+export const TestTypeUpdateSchema = z.object({
+  slug: z.string().min(1).optional(),
+  title: TranslationSchemaZod,
+  description: TranslationSchemaZod
+})
+
+export const TestCategoryCreateSchema = z.object({
+  slug: z
+    .string()
+    .min(1)
+    .regex(/^[a-z0-9-]+$/, 'Slug must be kebab-case'),
+  title: TranslationSchemaZod,
+  description: TranslationSchemaZod
+})
+
+export const TestCategoryUpdateSchema = z.object({
+  slug: z.string().min(1).optional(),
+  title: TranslationSchemaZod,
+  description: TranslationSchemaZod
 })

@@ -34,6 +34,8 @@ router.post(
 
             res.status(201).json(type)
         } catch (err) {
+            console.error(err) 
+
             if (err instanceof z.ZodError) {
                 return res.status(400).json({
                     message: 'Validation error',
@@ -41,7 +43,7 @@ router.post(
                 })
             }
 
-            res.status(500).json({ message: 'Server error' })
+            res.status(500).json({ message: 'Server error', text: err })
         }
     }
 )
