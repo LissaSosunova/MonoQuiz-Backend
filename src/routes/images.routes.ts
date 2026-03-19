@@ -8,6 +8,24 @@ router.get('/', async (_, res) => {
   res.json(images)
 })
 
+router.get('/:id', async (req, res) => {
+  try {
+    const image = await Image.findById(req.params.id)
+
+    if (!image) {
+      return res.status(404).send('Image not found')
+    }
+
+    const base64Data = image.data.replace(/^data:image\/\w+;base64,/, '')
+    const buffer = Buffer.from(base64Data, 'base64')
+
+    res.set('Content-Type', 'image/png') // или image/jpeg
+    res.send(buffer)
+  } catch (err) {
+    res.status(500).send('Error loading image')
+  }
+})
+
 
 router.post('/create', async (req, res) => {
   try {
