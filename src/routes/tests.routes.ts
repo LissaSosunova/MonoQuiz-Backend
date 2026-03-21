@@ -9,15 +9,20 @@ import mongoose from 'mongoose';
 const router = Router();
 
 router.get('/all', async (req, res) => {
-    const tests = await TestModel.find({});
-    res.json(tests);
+  const { category } = req.query;
+
+  const filter = category ? { category } : {};
+  const tests = await TestModel.find(filter);
+
+  res.json(tests);
 });
 
 router.get('/:id', auth, async (req, res) => {
-    const id = req.params.id;
-    const test = await TestModel.findById(id);
-    res.json(test);
+  const id = req.params.id;
+  const test = await TestModel.findById(id);
+  res.json(test);
 });
+
 
 router.post(
     '/create',
