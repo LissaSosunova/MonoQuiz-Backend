@@ -9,6 +9,7 @@ import typesRoutes from './routes/types.routes';
 import categoriesRoutes from './routes/cateories.routes';
 import testsRoutes from './routes/tests.routes';
 import imagesRoutes from './routes/images.routes';
+import userTestProgressRoutes from './routes/user-test-progress.routes';
 
 
 dotenv.config();
@@ -39,6 +40,7 @@ app.use('/types', typesRoutes);
 app.use('/category', categoriesRoutes);
 app.use('/tests', testsRoutes);
 app.use('/images', imagesRoutes)
+app.use('user-test-progress', userTestProgressRoutes)
 
 mongoose.connect(process.env.MONGO_URI!)
   .then(() => console.log('✅ MongoDB connected'));
