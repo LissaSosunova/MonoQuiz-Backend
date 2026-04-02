@@ -1,6 +1,7 @@
 import { TranslationSchema } from './Translations.schema';
 import { CalculationSchemeSchema } from './CalculationScheme.model';
 import { QuestionSchema } from './Question.schema';
+import { ResultSchema } from './Result.schema';
 
 import { model, Schema } from 'mongoose'
 
@@ -20,6 +21,10 @@ const TestSchema = new Schema(
     questions: {
       type: [QuestionSchema],
       required: true
+    },
+
+    results: {
+      type: [ResultSchema]
     },
 
     price: { type: Number, default: 0 },
